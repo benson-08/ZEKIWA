@@ -2,26 +2,45 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Orbit Kamera um Modell – AR.js</title>
+  <title>Orbit AR with Toggle and Ground</title>
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.2/aframe/build/aframe-ar.min.js"></script>
   <style>
     body { margin: 0; overflow: hidden; touch-action: none; }
+    #controls {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 999;
+      background: rgba(255,255,255,0.8);
+      padding: 10px;
+      border-radius: 8px;
+      font-family: sans-serif;
+    }
   </style>
 </head>
 <body>
 
+<!-- UI: Checkbox to toggle AR camera -->
+<div id="controls">
+  <label>
+    <input type="checkbox" id="toggleCamera" checked>
+    Enable AR Camera
+  </label>
+</div>
+
 <a-scene
-  vr-mode-ui="enabled: false"
   embedded
+  vr-mode-ui="enabled: false"
   arjs="sourceType: webcam; debugUIEnabled: false;"
+  renderer="colorManagement: true;"
 >
-  <!-- Kamera-Rig rotiert um das Modell -->
-  <a-entity id="cameraRig" position="0 1.0 0" rotation="0 0 0">
+  <!-- Rotating camera rig -->
+  <a-entity id="cameraRig" position="0 1.5 0" rotation="0 0 0">
     <a-entity camera position="0 0 3"></a-entity>
   </a-entity>
 
-  <!-- Modell bleibt fix -->
+  <!-- 3D Model -->
   <a-entity
     id="model"
     gltf-model="test.gltf"
@@ -29,15 +48,25 @@
     scale="1 1 1"
     rotation="0 0 0"
   ></a-entity>
+
+  <!-- Ground Plane -->
+  <a-plane
+    position="0 -0.01 0"
+    rotation="-90 0 0"
+    width="5"
+    height="5"
+    color="#cccccc"
+    shadow
+  ></a-plane>
 </a-scene>
 
 <script>
   const cameraRig = document.getElementById('cameraRig');
-
   let isTouching = false;
   let lastTouch = null;
   let startRotation = { x: 0, y: 0 };
 
+  // Orbit camera control
   document.body.addEventListener('touchstart', (e) => {
     if (e.touches.length === 1) {
       isTouching = true;
@@ -52,12 +81,10 @@
       const deltaX = e.touches[0].clientX - lastTouch.x;
       const deltaY = e.touches[0].clientY - lastTouch.y;
 
-      let newRotY = startRotation.y - deltaX * 0.3; // Horizontal orbit
-      let newRotX = startRotation.x - deltaY * 0.3; // Vertical orbit
+      let newRotY = startRotation.y - deltaX * 0.3;
+      let newRotX = startRotation.x - deltaY * 0.3;
 
-      // Begrenzung nach oben/unten (nicht unter Boden schauen)
-      newRotX = Math.max(-30, Math.min(60, newRotX));
-
+      newRotX = Math.max(-30, Math.min(60, newRotX)); // restrict vertical angle
       cameraRig.setAttribute('rotation', `${newRotX} ${newRotY} 0`);
     }
   });
@@ -65,6 +92,18 @@
   document.body.addEventListener('touchend', () => {
     isTouching = false;
     lastTouch = null;
+  });
+
+  // Toggle AR camera
+  const checkbox = document.getElementById('toggleCamera');
+  const scene = document.querySelector('a-scene');
+
+  checkbox.addEventListener('change', () => {
+    if (checkbox.checked) {
+      scene.setAttribute('arjs', 'sourceType: webcam');
+    } else {
+      scene.setAttribute('arjs', 'sourceType: image'); // disables webcam
+    }
   });
 </script>
 
