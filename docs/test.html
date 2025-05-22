@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>AR.js – Kamera Toggle, Plane & Pinch Zoom</title>
+  <title>Unendlicher Boden + zentriertes Modell</title>
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.2/aframe/build/aframe-ar.min.js"></script>
   <style>
@@ -21,7 +21,6 @@
 </head>
 <body>
 
-<!-- UI: Toggle Camera -->
 <div id="controls">
   <label>
     <input type="checkbox" id="toggleCamera" checked>
@@ -34,12 +33,12 @@
   vr-mode-ui="enabled: false"
   arjs="sourceType: webcam; debugUIEnabled: false;"
 >
-  <!-- Camera rig for orbit and zoom -->
-  <a-entity id="cameraRig" position="0 1.5 0" rotation="20 0 0">
-    <a-entity id="mainCamera" camera position="0 0 3"></a-entity>
+  <!-- Kamera-Rig: Kamera schaut leicht nach unten -->
+  <a-entity id="cameraRig" position="0 2 0" rotation="30 0 0">
+    <a-entity id="mainCamera" camera position="0 0 5"></a-entity>
   </a-entity>
 
-  <!-- 3D model -->
+  <!-- Modell in Zentrum der Welt -->
   <a-entity
     id="model"
     gltf-model="test.gltf"
@@ -48,15 +47,15 @@
     rotation="0 0 0"
   ></a-entity>
 
-  <!-- Ground plane (hidden initially if AR is on) -->
+  <!-- Unendlicher Boden mit wiederholter Textur -->
   <a-plane
     id="groundPlane"
     visible="false"
     position="0 -0.01 0"
     rotation="-90 0 0"
-    width="5"
-    height="5"
-    color="#cccccc"
+    width="200"
+    height="200"
+    material="src: https://cdn.aframe.io/a-painter/images/floor.jpg; repeat: 100 100; roughness: 1; metalness: 0"
   ></a-plane>
 </a-scene>
 
@@ -66,14 +65,13 @@
   const groundPlane = document.getElementById('groundPlane');
   const checkbox = document.getElementById('toggleCamera');
 
-  // Touch interaction state
   let isTouching = false;
   let lastTouch = null;
   let startRotation = { x: 0, y: 0 };
   let initialDistance = null;
-  let startZoom = 3;
+  let startZoom = 5;
 
-  // Orbit and pinch zoom
+  // Orbit + Zoom
   document.body.addEventListener('touchstart', (e) => {
     if (e.touches.length === 1) {
       isTouching = true;
@@ -111,7 +109,7 @@
     initialDistance = null;
   });
 
-  // Toggle AR camera (actually hides video background)
+  // Toggle Kamera & Boden
   checkbox.addEventListener('change', () => {
     const video = document.querySelector('video');
     const isOn = checkbox.checked;
@@ -119,7 +117,7 @@
     groundPlane.setAttribute('visible', !isOn);
   });
 
-  // Ensure plane shows correctly on load if AR is off
+  // Auf Start setzen
   window.addEventListener('load', () => {
     if (!checkbox.checked) {
       const video = document.querySelector('video');
