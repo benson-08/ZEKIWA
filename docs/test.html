@@ -1,41 +1,24 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>AR.js mit GLTF</title>
+    <meta charset="utf-8">
+    <title>AR.js Modell mit Pinch & Swipe</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.2/aframe/build/aframe-ar.min.js"></script>
     <style>
-      body { margin: 0; overflow: hidden; }
-      #scaleControl {
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 100;
-        background: white;
-        padding: 10px;
-        border-radius: 8px;
-      }
+      body { margin: 0; overflow: hidden; touch-action: none; }
     </style>
   </head>
   <body>
-    <!-- Skalierung per Slider -->
-    <div id="scaleControl">
-      Skalierung:
-      <input type="range" id="scaleSlider" min="0.1" max="5" value="0.1" step="0.1">
-    </div>
-
-    <!-- AR Szene -->
     <a-scene
       vr-mode-ui="enabled: false"
       embedded
       arjs="sourceType: webcam; debugUIEnabled: false;"
     >
-      <!-- Kamera -->
       <a-entity camera></a-entity>
 
-      <!-- 3D Modell, 2m vor der Kamera platziert -->
-      <a-entity 
+      <a-entity
+        id="model"
         gltf-model="test.gltf"
         position="0 0 -2"
         scale="1 1 1"
@@ -44,12 +27,42 @@
     </a-scene>
 
     <script>
-      const model = document.querySelector('#model');
-      const scaleSlider = document.getElementById('scaleSlider');
+      const model = document.getElementById('model');
 
-      scaleSlider.addEventListener('input', () => {
-        const s = scaleSlider.value;
-        model.setAttribute('scale', `${s} ${s} ${s}`);
+      let lastTouchDist = null;
+      let lastRotationX = null;
+      let startRotY = 0;
+
+      document.body.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 2) {
+          const dx = e.touches[0].clientX - e.touches[1].clientX;
+          const dy = e.touches[0].clientY - e.touches[1].clientY;
+          lastTouchDist = Math.sqrt(dx * dx + dy * dy);
+        } else if (e.touches.length === 1) {
+          lastRotationX = e.touches[0].clientX;
+          // Speichere aktuelle Y-Rotation
+          startRotY = model.getAttribute('rotation').y;
+        }
+      });
+
+      document.body.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 2 && lastTouchDist !== null) {
+          const dx = e.touches[0].clientX - e.touches[1].clientX;
+          const dy = e.touches[0].clientY - e.touches[1].clientY;
+          const newDist = Math.sqrt(dx * dx + dy * dy);
+          const scale = Math.min(Math.max(newDist / lastTouchDist, 0.5), 5);
+
+          model.setAttribute('scale', `${scale} ${scale} ${scale}`);
+        } else if (e.touches.length === 1 && lastRotationX !== null) {
+          const deltaX = e.touches[0].clientX - lastRotationX;
+          const newRotY = startRotY + deltaX * 0.5; // Drehgeschwindigkeit
+          model.setAttribute('rotation', `0 ${newRotY} 0`);
+        }
+      });
+
+      document.body.addEventListener('touchend', (e) => {
+        if (e.touches.length < 2) lastTouchDist = null;
+        if (e.touches.length === 0) lastRotationX = null;
       });
     </script>
   </body>
