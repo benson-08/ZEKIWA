@@ -26,18 +26,22 @@
     </div>
 
     <!-- AR Szene -->
-    <a-scene 
-    vr-mode-ui="enabled: false"
+    <a-scene
+      vr-mode-ui="enabled: false"
       embedded
-      arjs="sourceType: webcam; debugUIEnabled: false;">
+      arjs="sourceType: webcam; debugUIEnabled: false;"
+    >
       <!-- Kamera -->
-      <a-marker preset="hiro">
-        <!-- 3D Modell -->
-        <a-entity id="model" gltf-model="test.gltf" scale="1 1 1"></a-entity>
-      </a-marker>
       <a-entity camera></a-entity>
-    </a-scene>
 
+      <!-- 3D Modell, 2m vor der Kamera platziert -->
+      <a-entity 
+        gltf-model="test.gltf"
+        position="0 0 -2"
+        scale="1 1 1"
+        rotation="0 0 0"
+      ></a-entity>
+    </a-scene>
 
     <script>
       const model = document.querySelector('#model');
