@@ -4,15 +4,16 @@
     <meta charset="utf-8" />
     <title>WebXR AR Cursor</title>
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <script src="https://jeromeetienne.github.io/AR.js/aframe/build/aframe-ar.js"></script>
     <style>
       body { margin: 0; overflow: hidden; }
     </style>
   </head>
   <body>
 
-    <a-scene webxr="optionalFeatures:  hit-test;" ar-hit-test="target:#model;" embedded vr-mode-ui="enabled: false">
- <a-light hide-on-enter-ar></a-light>
-<a-sky hide-on-enter-ar color="skyblue"></a-sky>
+    <a-scene webxr="optionalFeatures:  hit-test;" ar-hit-test="target:#model;" embedded  embedded arjs>
+ <!-- <a-light hide-on-enter-ar></a-light>
+<a-sky hide-on-enter-ar color="skyblue"></a-sky> -->
       <a-entity
         id="model"
         gltf-model="test.gltf"
