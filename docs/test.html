@@ -11,8 +11,8 @@
   </head>
   <body>
 
-    <a-scene webxr="optionalFeatures:  hit-test;" ar-hit-test="target:#model;">
-
+    <a-scene webxr="optionalFeatures:  hit-test; dom-overlay;" ar-hit-test="target:#model;" xrweb="mode: ar;">
+ 
   <a-entity
     id="model"
     gltf-model="test.gltf"
@@ -20,7 +20,7 @@
     scale="1 1 1"
     rotation="0 0 0"
   ></a-entity>
-
+<a-entity camera look-controls></a-entity>
     </a-scene>
   </body>
 </html>
