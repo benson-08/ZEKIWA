@@ -1,83 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>3D Model with 35mm Camera</title>
-  <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
-  <style>
-    body { margin: 0; overflow: hidden; }
-    html, body, a-scene { width: 100%; height: 100%; }
-  </style>
-</head>
-<body>
-<a-scene background="color: #f0f0f0">
-  
-  <!-- Camera with 35mm lens equivalent (FOV ≈ 55) -->
-  <a-entity id="cameraRig" position="0 .3 0" rotation="0 0 0">
-    <a-entity id="mainCamera" camera="fov: 55"  position="0 .5 3"></a-entity>
-  </a-entity>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>WebXR AR Cursor</title>
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-ar-hit-test@1.0.0/dist/aframe-ar-hit-test.min.js"></script>
+    <style>
+      body { margin: 0; overflow: hidden; }
+    </style>
+  </head>
+  <body>
 
-  <!-- Lights for proper illumination -->
-  <a-entity light="type: ambient; intensity: 0.6"></a-entity>
-  <a-entity light="type: directional; intensity: 0.6" position="1 1 1"></a-entity>
+    <a-scene webxr="optionalFeatures:  hit-test;" ar-hit-test="target:#model;">
 
-  <!-- Centered model -->
-  <a-entity 
-    gltf-model="test.gltf" 
+  <a-entity
+    id="model"
+    gltf-model="test.gltf"
     position="0 0 0"
     scale="1 1 1"
     rotation="0 0 0"
   ></a-entity>
 
-</a-scene>
 
-<script>
-    const cameraRig = document.getElementById('cameraRig');
-  const mainCamera = document.getElementById('mainCamera');
+    <a-scene
+      vr-mode-ui="enabled: false"
+      embedded
+      arjs="false"
+      webxr="requiredFeatures: hit-test;"
+      renderer="colorManagement: true"
+      xrweb="mode: ar;"
+    >
+      <!-- Cursor shown on detected plane -->
+      <a-entity 
+        id="cursor" 
+        geometry="primitive: ring; radiusInner: 0.05; radiusOuter: 0.07"
+        material="color: red; opacity: 0.75"
+        visible="false"
+        position="0 0 0"
+        rotation="-90 0 0"
+        ar-hit-test="target: cursor;"
+      ></a-entity>
 
-  let isTouching = false;
-  let lastTouch = null;
-  let startRotation = { x: 0, y: 0 };
-  let initialDistance = null;
-  let startZoom = 5;
-
-  // Orbit + Zoom
-  document.body.addEventListener('touchstart', (e) => {
-    if (e.touches.length === 1) {
-      isTouching = true;
-      lastTouch = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-      const rot = cameraRig.getAttribute('rotation');
-      startRotation = { x: rot.x, y: rot.y };
-    } else if (e.touches.length === 2) {
-      const dx = e.touches[0].clientX - e.touches[1].clientX;
-      const dy = e.touches[0].clientY - e.touches[1].clientY;
-      initialDistance = Math.sqrt(dx * dx + dy * dy);
-      startZoom = mainCamera.getAttribute('position').z;
-    }
-  });
-
-  document.body.addEventListener('touchmove', (e) => {
-    if (e.touches.length === 1 && isTouching) {
-      const deltaX = e.touches[0].clientX - lastTouch.x;
-      const deltaY = e.touches[0].clientY - lastTouch.y;
-      let newRotY = startRotation.y - deltaX * 0.3;
-      let newRotX = startRotation.x - deltaY * 0.3;
-      newRotX = Math.max(-30, Math.min(60, newRotX));
-      cameraRig.setAttribute('rotation', `${newRotX} ${newRotY} 0`);
-    } else if (e.touches.length === 2 && initialDistance !== null) {
-      const dx = e.touches[0].clientX - e.touches[1].clientX;
-      const dy = e.touches[0].clientY - e.touches[1].clientY;
-      const newDistance = Math.sqrt(dx * dx + dy * dy);
-      const scale = initialDistance / newDistance;
-      const newZ = Math.min(10, Math.max(1, startZoom * scale));
-      mainCamera.setAttribute('position', `0 0 ${newZ}`);
-    }
-  });
-
-  document.body.addEventListener('touchend', () => {
-    isTouching = false;
-    initialDistance = null;
-  });
-</script>
-</body>
+      <!-- Camera -->
+      <a-entity camera look-controls></a-entity>
+    </a-scene>
+  </body>
 </html>
