@@ -4,27 +4,26 @@
     <meta charset="utf-8" />
     <title>WebXR AR Cursor</title>
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/aframe-ar-hit-test@1.0.0/dist/aframe-ar-hit-test.min.js"></script>
     <style>
       body { margin: 0; overflow: hidden; }
     </style>
   </head>
   <body>
 
-    <a-scene webxr="optionalFeatures:  hit-test; dom-overlay;" ar-hit-test="target:#model;">
+    <a-scene webxr="optionalFeatures:  hit-test;" ar-hit-test="target:#model;">
  
-  <a-entity
-    id="model"
-    gltf-model="test.gltf"
-    position="0 0 0"
-    scale="1 1 1"
-    rotation="0 0 0"
-  ></a-entity>
-<a-entity camera look-controls></a-entity>
-<a-entity>
-  <video autoplay="true" id="videoElement">
-</video>
-</a-entity>
+      <a-entity
+        id="model"
+        gltf-model="test.gltf"
+        position="0 0 0"
+        scale="1 1 1"
+        rotation="0 0 0"
+      ></a-entity>
+    <a-entity camera look-controls></a-entity>
+    <a-entity>
+      <video autoplay="true" id="videoElement">
+    </video>
+    </a-entity>
     </a-scene>
   </body>
 
