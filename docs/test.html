@@ -22,7 +22,7 @@
     <!-- Skalierung per Slider -->
     <div id="scaleControl">
       Skalierung:
-      <input type="range" id="scaleSlider" min="0.1" max="5" value="1" step="0.1">
+      <input type="range" id="scaleSlider" min="0.1" max="5" value="0.1" step="0.1">
     </div>
 
     <!-- AR Szene -->
@@ -30,7 +30,7 @@
       <!-- Kamera -->
       <a-marker preset="hiro">
         <!-- 3D Modell -->
-        <a-entity id="model" gltf-model="test.gltf" scale="1 1 1"></a-entity>
+        <a-entity id="model" gltf-model="test.gltf" scale="0.1 0.1 0.1"></a-entity>
       </a-marker>
       <a-entity camera></a-entity>
     </a-scene>
