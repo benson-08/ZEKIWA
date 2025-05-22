@@ -1,37 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>3D Model with 35mm Camera</title>
-  <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+  <meta charset="UTF-8">
+  <title>35mm Camera + DoF + Orbit</title>
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.controls.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aframe-effects@5.0.1/dist/aframe-effects.min.js"></script>
   <style>
-    body { margin: 0; overflow: hidden; }
+    body { margin: 0; overflow: hidden; touch-action: none; }
     html, body, a-scene { width: 100%; height: 100%; }
   </style>
 </head>
 <body>
-<a-scene background="color: #f0f0f0">
-  
-  <!-- Camera with 35mm lens equivalent (FOV ≈ 55) -->
-  <a-entity 
-    camera="fov: 55" 
-    position="0 .5 3"
-    rotation=" ">
-    <a-cursor></a-cursor>
+
+<a-scene
+  background="color: #f0f0f0"
+  effects="bokeh"
+  bokeh="focus: 0; aperture: 0.025; maxblur: 1"
+  renderer="colorManagement: true; physicallyCorrectLights: true"
+>
+  <!-- Camera with Orbit Controls and DoF -->
+  <a-entity id="rig" position="0 0 0">
+    <a-entity
+      id="camera"
+      camera="fov: 55"
+      orbit-controls="target: 0 .5 0; enableDamping: true; dampingFactor: 0.1; rotateSpeed: 0.2; minDistance: 2; maxDistance: 10"
+      position="0 1.5 5"
+    ></a-entity>
   </a-entity>
 
-  <!-- Lights for proper illumination -->
-  <a-entity light="type: ambient; intensity: 0.6"></a-entity>
-  <a-entity light="type: directional; intensity: 0.6" position="1 1 1"></a-entity>
+  <!-- Lighting -->
+  <a-entity light="type: ambient; intensity: 0.5"></a-entity>
+  <a-entity light="type: directional; intensity: 0.6" position="2 4 3"></a-entity>
 
   <!-- Centered model -->
-  <a-entity 
-    gltf-model="test.gltf" 
+  <a-entity
+    gltf-model="test.gltf"
     position="0 0 0"
     scale="1 1 1"
     rotation="0 0 0"
   ></a-entity>
-
 </a-scene>
+
+<script>
+  const camera = document.querySelector('#camera');
+  const controls = camera.components['orbit-controls'];
+
+  // Clamp vertical rotation to prevent going below y = 0
+  camera.addEventListener('componentchanged', (e) => {
+    if (e.detail.name === 'rotation' || e.detail.name === 'orbit-controls') {
+      const polarAngle = controls.controls.getPolarAngle(); // vertical angle
+      const max = Math.PI / 2;       // 90 deg down
+      const min = 0.05;              // just above horizon
+
+      // Force vertical limits manually
+      if (polarAngle > max) controls.controls.setPolarAngle(max);
+      if (polarAngle < min) controls.controls.setPolarAngle(min);
+    }
+  });
+
+  // Optional: fix DoF to keep model sharp
+  camera.setAttribute('bokeh', {
+    focus: 0,
+    aperture: 0.025,
+    maxblur: 1
+  });
+</script>
+
 </body>
 </html>
