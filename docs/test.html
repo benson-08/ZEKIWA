@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>3D Model with 35mm Camera</title>
-  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
   <style>
     body { margin: 0; overflow: hidden; }
     html, body, a-scene { width: 100%; height: 100%; }
@@ -15,7 +15,9 @@
   <!-- Camera with 35mm lens equivalent (FOV ≈ 55) -->
   <a-entity 
     camera="fov: 55" 
-    position="0 .5 3">
+    position="0 .5 3"
+    rotation=" ">
+    <a-cursor></a-cursor>
   </a-entity>
 
   <!-- Lights for proper illumination -->
