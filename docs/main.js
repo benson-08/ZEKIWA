@@ -15,6 +15,10 @@ animate();
 function init() {
   scene = new THREE.Scene();
 
+  const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6);
+scene.add(hemiLight);
+
+
   camera = new THREE.PerspectiveCamera(
     70,
     window.innerWidth / window.innerHeight,
