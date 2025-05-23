@@ -16,13 +16,13 @@ function init() {
 
 // ##### LIGHTNING START ####
 // Soften the hemisphere light
-const light = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6);
-scene.add(light);
+// const light = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6);
+// scene.add(light);
 
-// Adjust directional light and position it slightly
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.4);
-directionalLight.position.set(1, 1, 1);
-scene.add(directionalLight);
+// // Adjust directional light and position it slightly
+// const directionalLight = new THREE.DirectionalLight(0xffffff, 0.4);
+// directionalLight.position.set(1, 1, 1);
+// scene.add(directionalLight);
 
 // ##### LIGHTNING END ####
 
@@ -50,43 +50,44 @@ scene.add(directionalLight);
   // ##### RENDERER END ####
 
   
-
+// ##### ReTICLE START ####
   const geometry = new THREE.RingGeometry(0.15, 0.2, 32).rotateX(-Math.PI / 2);
   const material = new THREE.MeshBasicMaterial({ color: 0x0fff00 });
   reticle = new THREE.Mesh(geometry, material);
   reticle.matrixAutoUpdate = false;
   reticle.visible = false;
   scene.add(reticle);
+  // ##### ReTICLE END ####
 
-  controller = renderer.xr.getController(0);//
-  controller.addEventListener("select", onSelect);
-  scene.add(controller);
+  // controller = renderer.xr.getController(0);//
+  // controller.addEventListener("select", onSelect);
+  // scene.add(controller);
 }
 
 function onSelect() {
   if (reticle.visible) {
-    // const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-    // const material = new THREE.MeshPhongMaterial({
-    //   color: 0xffffff * Math.random(),
-    // });
-    // const mesh = new THREE.Mesh(geometry, material);
-    // mesh.position.setFromMatrixPosition(reticle.matrix);
-    // mesh.scale.y = Math.random() * 2 + 1;
-    // scene.add(mesh);
+    const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+    const material = new THREE.MeshPhongMaterial({
+      color: 0xffffff * Math.random(),
+    });
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.setFromMatrixPosition(reticle.matrix);
+    mesh.scale.y = Math.random() * 2 + 1;
+    scene.add(mesh);
 
-    const loader = new GLTFLoader();
-    loader.load(
-      "test.gltf",
-      function (gltf) {
-        const model = gltf.scene;
-        model.position.setFromMatrixPosition(reticle.matrix);
-        scene.add(model);
-      },
-      undefined,
-      function (error) {
-        console.error("An error happened while loading the model:", error);
-      }
-    );
+    // const loader = new GLTFLoader();
+    // loader.load(
+    //   "test.gltf",
+    //   function (gltf) {
+    //     const model = gltf.scene;
+    //     model.position.setFromMatrixPosition(reticle.matrix);
+    //     scene.add(model);
+    //   },
+    //   undefined,
+    //   function (error) {
+    //     console.error("An error happened while loading the model:", error);
+    //   }
+    // );
 
   }
 }
@@ -96,29 +97,44 @@ function animate() {
 }
 
 function render(timestamp, frame) {
-if (frame && hitTestSource) {
+  if (frame) {
     const referenceSpace = renderer.xr.getReferenceSpace();
-    const hitTestResults = frame.getHitTestResults(hitTestSource);
+    const session = renderer.xr.getSession();
 
-    if (hitTestResults.length > 0) {
-      const hit = hitTestResults[0];
-      const pose = hit.getPose(referenceSpace);
-      const matrix = pose.transform.matrix;
+    if (hitTestSourceRequested === false) {
+      session.requestReferenceSpace('viewer').then(function (referenceSpace) {
+        session
+          .requestHitTestSource({ space: referenceSpace })
+          .then(function (source) {
+            hitTestSource = source;
+          });
+      });
 
-      reticle.visible = true;
-      reticle.matrix.fromArray(matrix);
+      session.addEventListener('end', function () {
+        hitTestSourceRequested = false;
+        hitTestSource = null;
+      });
 
-      // Move box with reticle
-      box.visible = true;
-      box.position.setFromMatrixPosition(reticle.matrix);
-    } else {
-      reticle.visible = false;
-      box.visible = false;
+      hitTestSourceRequested = true;
+    }
+
+    if (hitTestSource) {
+      const hitTestResults = frame.getHitTestResults(hitTestSource);
+
+      if (hitTestResults.length) {
+        const hit = hitTestResults[0];
+
+        reticle.visible = true;
+        reticle.matrix.fromArray(hit.getPose(referenceSpace).transform.matrix);
+      } else {
+        reticle.visible = false;
+      }
     }
   }
 
   renderer.render(scene, camera);
 }
+
 
 let hitTestSource = null;
 let hitTestSourceRequested = false;
