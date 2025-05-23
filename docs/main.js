@@ -1,5 +1,11 @@
 import * as THREE from 'https://unpkg.com/three@0.127.0/build/three.module.js';
 import { ARButton } from 'https://unpkg.com/three@0.127.0/examples/jsm/webxr/ARButton.js';
+import { GLTFLoader } from 'https://unpkg.com/three@0.127.0/examples/jsm/loaders/GLTFLoader.js';
+import { OrbitControls } from 'https://unpkg.com/three@0.127.0/examples/jsm/controls/OrbitControls.js';
+import { VRButton } from 'https://unpkg.com/three@0.127.0/examples/jsm/webxr/VRButton.js';
+import { GUI } from 'https://unpkg.com/three@0.127.0/examples/jsm/libs/lil-gui.module.min.js';
+import { RGBELoader } from 'https://unpkg.com/three@0.127.0/examples/jsm/loaders/RGBELoader.js';
+
 
 let camera, scene, renderer;
 let reticle;
@@ -36,6 +42,14 @@ function init() {
   reticle.visible = false;
   scene.add(reticle);
 
+  const light = new THREE.DirectionalLight(0xffffff, 1);
+  light.position.set(0, 1, 0);
+  light.rotateX(-Math.PI / 4); // Rotate light to point down
+  light.castShadow = true;
+  scene.add(light);
+
+
+
   controller = renderer.xr.getController(0);
   controller.addEventListener('select', onSelect);
   scene.add(controller);
@@ -43,12 +57,22 @@ function init() {
 
 function onSelect() {
   if (reticle.visible) {
-    const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-    const material = new THREE.MeshPhongMaterial({ color: 0xffffff * Math.random() });
-    const mesh = new THREE.Mesh(geometry, material);
-    mesh.position.setFromMatrixPosition(reticle.matrix);
-    mesh.scale.y = Math.random() * 2 + 1;
-    scene.add(mesh);
+
+    const loader = new GLTFLoader();
+    loader.load('test.gltf', function (gltf) {
+      const model = gltf.scene;
+      model.position.setFromMatrixPosition(reticle.matrix);
+      scene.add(model);
+    }, undefined, function (error) {
+      console.error('An error occurred while loading the GLTF model:', error);
+    });
+
+    // const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+    // const material = new THREE.MeshPhongMaterial({ color: 0xfff00a * Math.random() });
+    // const mesh = new THREE.Mesh(geometry, material);
+    // mesh.position.setFromMatrixPosition(reticle.matrix);
+    // mesh.scale.y = Math.random() * 2 + 1;
+    // scene.add(mesh);
   }
 }
 
