@@ -3,8 +3,6 @@ import { ARButton } from 'https://unpkg.com/three@0.127.0/examples/jsm/webxr/ARB
 import { GLTFLoader } from 'https://unpkg.com/three@0.127.0/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'https://unpkg.com/three@0.127.0/examples/jsm/controls/OrbitControls.js';
 import { VRButton } from 'https://unpkg.com/three@0.127.0/examples/jsm/webxr/VRButton.js';
-import { GUI } from 'https://unpkg.com/three@0.127.0/examples/jsm/libs/lil-gui.module.min.js';
-import { RGBELoader } from 'https://unpkg.com/three@0.127.0/examples/jsm/loaders/RGBELoader.js';
 
 
 let camera, scene, renderer;
