@@ -96,7 +96,6 @@ function animate() {
 }
 
 function render(timestamp, frame) {
-  if (frame) {
 if (frame && hitTestSource) {
     const referenceSpace = renderer.xr.getReferenceSpace();
     const hitTestResults = frame.getHitTestResults(hitTestSource);
