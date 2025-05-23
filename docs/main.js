@@ -1,7 +1,9 @@
-import * as THREE from 'https://unpkg.com/three@0.176.0/build/three.module.js';
-import { ARButton } from 'https://unpkg.com/three@0.176.0/examples/jsm/webxr/ARButton.js';
+import * as THREE from "https://unpkg.com/three@0.176.0/build/three.module.js";
+import { ARButton } from "https://unpkg.com/three@0.176.0/examples/jsm/webxr/ARButton.js";
+import { GLTFLoader } from 'https://unpkg.com/three@0.176.0/examples/jsm/loaders/GLTFLoader.js';
 
-let camera, scene, renderer;  
+
+let camera, scene, renderer;
 let reticle;
 let controller;
 
@@ -10,6 +12,13 @@ animate();
 
 function init() {
   scene = new THREE.Scene();
+
+  const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+  scene.add(light);
+
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+  directionalLight.position.set(0, 10, 0);
+  scene.add(directionalLight);
 
   camera = new THREE.PerspectiveCamera(
     70,
@@ -25,7 +34,7 @@ function init() {
 
   document.body.appendChild(
     ARButton.createButton(renderer, {
-      requiredFeatures: ['hit-test'],
+      requiredFeatures: ["hit-test"],
     })
   );
 
@@ -37,14 +46,16 @@ function init() {
   scene.add(reticle);
 
   controller = renderer.xr.getController(0);
-  controller.addEventListener('select', onSelect);
+  controller.addEventListener("select", onSelect);
   scene.add(controller);
 }
 
 function onSelect() {
   if (reticle.visible) {
     const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-    const material = new THREE.MeshPhongMaterial({ color: 0xffffff * Math.random() });
+    const material = new THREE.MeshPhongMaterial({
+      color: 0xffffff * Math.random(),
+    });
     const mesh = new THREE.Mesh(geometry, material);
     mesh.position.setFromMatrixPosition(reticle.matrix);
     mesh.scale.y = Math.random() * 2 + 1;
@@ -62,7 +73,7 @@ function render(timestamp, frame) {
     const session = renderer.xr.getSession();
 
     if (hitTestSourceRequested === false) {
-      session.requestReferenceSpace('viewer').then(function (referenceSpace) {
+      session.requestReferenceSpace("viewer").then(function (referenceSpace) {
         session
           .requestHitTestSource({ space: referenceSpace })
           .then(function (source) {
@@ -70,7 +81,7 @@ function render(timestamp, frame) {
           });
       });
 
-      session.addEventListener('end', function () {
+      session.addEventListener("end", function () {
         hitTestSourceRequested = false;
         hitTestSource = null;
       });
